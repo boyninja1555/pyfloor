@@ -1,6 +1,6 @@
 [project]
 name = "pyfloor"
-version = "1.0.1"
+version = "1.0.2"
 description = "Python project manager made specifically for programs, not libraries or small scripts"
 authors = [{ name = "boyninja1555", email = "flappyfloorg@gmail.com" }]
 readme = "README.md"

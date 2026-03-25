@@ -1,7 +1,7 @@
 import os
 import subprocess
 import venv
-from config import PyFloorConfig
+from pyfloor.config import PyFloorConfig
 
 MAIN_SOURCE = """def main():
     pass

@@ -1,5 +1,5 @@
 import argparse
-from project import PyFloorProject
+from pyfloor.project import PyFloorProject
 
 
 def main():
