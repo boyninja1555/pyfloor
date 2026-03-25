@@ -2,4 +2,4 @@
 set -e
 scripts/check-venv.sh
 source .venv/bin/activate
-python3 src/main.py $*
+python3 pyfloor/cli.py $*
