@@ -80,8 +80,9 @@ class PyFloorProject:
     def run(self, args: list[str]):
         if not os.path.exists(self.venv_path) or not os.path.exists(self.depends_path):
             print("Please --install before running the program")
-        else:
-            self.__venv_command__(self.main_source_path, *args)
+            return
+
+        self.__venv_command__(self.main_source_path, *args)
 
     def install(self, dependency: str | None = None):
         if not os.path.exists(self.venv_path):
