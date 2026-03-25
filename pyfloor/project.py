@@ -22,7 +22,6 @@ __pycache__/
 
 
 class PyFloorProject:
-    new: bool
     path: str
     venv_path: str
     gitignore_path: str
@@ -32,7 +31,6 @@ class PyFloorProject:
     config: PyFloorConfig
 
     def __init__(self, path: str, install_used: bool):
-        self.new = False
         self.path = path
         self.venv_path = os.path.join(self.path, ".venv")
         self.gitignore_path = os.path.join(self.path, ".gitignore")
@@ -40,7 +38,6 @@ class PyFloorProject:
         self.sources_path = os.path.join(self.path, "src")
         self.main_source_path = os.path.join(self.sources_path, "main.py")
         if not os.path.exists(self.path):
-            self.new = True
             print("Creating project directory...")
             os.makedirs(self.path)
 
@@ -54,8 +51,9 @@ class PyFloorProject:
             },
         )
 
+        config_existed = os.path.exists(self.config.path)
         self.config.load()
-        if self.new:
+        if not config_existed:
             self.__generate__(install_used)
 
     def __generate__(self, install_used: bool):
