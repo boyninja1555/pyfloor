@@ -113,7 +113,8 @@ class PyFloorProject:
         output = self.__venv_command_output__("-m", "pip", "freeze")
         with open(self.depends_path, "w") as f:
             f.write(output)
-            print(f"Synced dependencies to {os.path.basename(self.depends_path)}")
+            if log:
+                print(f"Synced dependencies to {os.path.basename(self.depends_path)}")
 
     def __venv_command__(self, *args: str):
         subprocess.check_call(
