@@ -11,11 +11,21 @@ if __name__ == "__main__":
     main()
 """
 
+GITIGNORE = """### Python ###
+__pycache__/
+.venv/
+
+### IDEs ###
+.idea/
+.vscode/
+.DS_Store/"""
+
 
 class PyFloorProject:
     new: bool
     path: str
     venv_path: str
+    gitignore_path: str
     depends_path: str
     sources_path: str
     main_source_path: str
@@ -25,6 +35,7 @@ class PyFloorProject:
         self.new = False
         self.path = path
         self.venv_path = os.path.join(self.path, ".venv")
+        self.gitignore_path = os.path.join(self.path, ".gitignore")
         self.depends_path = os.path.join(self.path, "requirements.txt")
         self.sources_path = os.path.join(self.path, "src")
         self.main_source_path = os.path.join(self.sources_path, "main.py")
@@ -48,6 +59,11 @@ class PyFloorProject:
             self.__generate__(install_used)
 
     def __generate__(self, install_used: bool):
+        if not os.path.exists(self.gitignore_path):
+            print("Creating default gitignore...")
+            with open(self.gitignore_path, "w") as f:
+                f.write(GITIGNORE)
+
         if not os.path.exists(self.sources_path):
             print("Creating sources directory...")
             os.makedirs(self.sources_path)
