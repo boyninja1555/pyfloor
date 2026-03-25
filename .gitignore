@@ -1,4 +1,5 @@
 /examples/
+*.egg-info/
 
 ### Python ###
 __pycache__/
