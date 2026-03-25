@@ -1,0 +1,11 @@
+/examples/
+
+### Python ###
+__pycache__/
+.venv/
+dist/
+
+### IDEs ###
+.idea/
+.vscode/
+.DS_Store/
