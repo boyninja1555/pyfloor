@@ -88,7 +88,7 @@ class PyFloorProject:
             venv.create(self.venv_path, with_pip=True)
 
         if not os.path.exists(self.depends_path):
-            open(self.depends_path, "w")
+            open(self.depends_path, "w").close()
 
         if dependency is None:
             self.__venv_command__(
@@ -103,7 +103,7 @@ class PyFloorProject:
             venv.create(self.venv_path, with_pip=True)
 
         if not os.path.exists(self.depends_path):
-            open(self.depends_path, "w")
+            open(self.depends_path, "w").close()
 
         self.__venv_command__("-m", "pip", "uninstall", dependency)
         self.sync_depends(False)
