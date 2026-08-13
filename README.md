@@ -36,3 +36,5 @@ Run this command to build your program with PyInstaller!
 ```
 
 Once you get bored of having a million build-junk files, you can run `./pyfloor clean` to remove them.
+
+> **Note:** To be clear, I'm a proud Linux/macOS user and **ONLY** didn't include macOS support because toolchains on that OS are either too hard to automate or require too many branches.
