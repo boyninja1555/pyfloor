@@ -1,0 +1,8 @@
+build/
+pyfloor
+
+# Environment
+.vscode/
+.idea/
+*.iml
+.DS_Store

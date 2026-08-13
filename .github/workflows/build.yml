@@ -1,0 +1,123 @@
+name: Build and release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-x86_64
+            runner: windows-latest
+            executable: pyfloor.exe
+
+          - platform: windows-arm64
+            runner: windows-11-arm
+            executable: pyfloor.exe
+
+          - platform: linux-x86_64
+            runner: ubuntu-latest
+            executable: pyfloor
+
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+            executable: pyfloor
+
+          - platform: macos-arm64
+            runner: macos-latest
+            executable: pyfloor
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build
+        run: make
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyfloor-${{ matrix.platform }}
+          path: ${{ matrix.executable }}
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Determine CalVer
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          date="$(date -u '+%Y.%m.%d')"
+          latest="$(
+            git tag --list "${date}-*" |
+            sed -n "s/^${date}-//p" |
+            grep -E '^[0-9]+$' |
+            sort -n |
+            tail -n 1
+          )"
+
+          if [[ -z "$latest" ]]; then
+            build=1
+          else
+            build=$((latest + 1))
+          fi
+
+          version="${date}-${build}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "CalVer: $version"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+
+      - name: Prepare release files
+        shell: bash
+        run: |
+          mkdir -p release
+          cp artifacts/pyfloor-windows-x86_64/pyfloor.exe release/pyfloor-windows-x86_64.exe
+          cp artifacts/pyfloor-windows-arm64/pyfloor.exe release/pyfloor-windows-arm64.exe
+          cp artifacts/pyfloor-linux-x86_64/pyfloor release/pyfloor-linux-x86_64
+          cp artifacts/pyfloor-linux-arm64/pyfloor release/pyfloor-linux-arm64
+          cp artifacts/pyfloor-macos-arm64/pyfloor release/pyfloor-macos-arm64
+
+      - name: Create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$VERSION" "$GITHUB_SHA"
+          git push origin "$VERSION"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --generate-notes \
+            release/*
