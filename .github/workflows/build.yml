@@ -67,7 +67,7 @@ jobs:
           latest="$(
             git tag --list "${date}-*" |
             sed -n "s/^${date}-//p" |
-            grep -E '^[0-9]+$' |
+            awk '/^[0-9]+$/ { print }' |
             sort -n |
             tail -n 1
           )"
@@ -112,8 +112,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          gh release create "$VERSION" \
-            --target "$GITHUB_SHA" \
-            --title "$VERSION" \
-            --generate-notes \
-            release/*
+          gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --generate-notes release/*
