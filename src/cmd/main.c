@@ -8,13 +8,7 @@
 #define PATHSEP '/'
 #endif
 
-#if defined(__APPLE__)
-#define EMBED_SYMBOL(name) _##name
-#elif defined(_WIN32)
 #define EMBED_SYMBOL(name) name
-#else
-#define EMBED_SYMBOL(name) name
-#endif
 
 extern const unsigned char EMBED_SYMBOL(_binary_src_wrapper_unix_sh_start)[];
 extern const unsigned char EMBED_SYMBOL(_binary_src_wrapper_unix_sh_end)[];
