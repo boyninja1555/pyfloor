@@ -33,7 +33,11 @@ endif
 
 TARGET_TRIPLE := $(shell $(CC) -dumpmachine 2>/dev/null)
 
-ifeq ($(HOST_OS),windows)
+ifeq ($(HOST_OS),macos)
+    OBJCOPY_INPUT := binary
+    OBJCOPY_OUTPUT := macho64
+    OBJCOPY_ARCH := arm64
+else ifeq ($(HOST_OS),windows)
     OBJCOPY_INPUT := binary
     ifneq ($(findstring aarch64,$(TARGET_TRIPLE)),)
         OBJCOPY_OUTPUT := pe-aarch64
@@ -42,8 +46,6 @@ ifeq ($(HOST_OS),windows)
         OBJCOPY_OUTPUT := pe-x86-64
         OBJCOPY_ARCH   := i386:x86-64
     endif
-else ifeq ($(HOST_OS),macos)
-    EMBED_METHOD := c
 else
     OBJCOPY_INPUT := binary
     ifneq ($(findstring aarch64,$(TARGET_TRIPLE)),)
@@ -69,23 +71,6 @@ build/util.o: src/cmd/util.c
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@
 
-ifeq ($(EMBED_METHOD),c)
-
-build/script_unix.o: src/wrapper/unix.sh
-	@mkdir -p build
-	$(CC) $(CFLAGS) -x c -c /dev/null -o /dev/null
-	@echo "Generating embedded Unix script..."
-	xxd -i $< > build/script_unix.c
-	$(CC) $(CFLAGS) -c build/script_unix.c -o $@
-
-build/script_windows.o: src/wrapper/windows.bat
-	@mkdir -p build
-	@echo "Generating embedded Windows script..."
-	xxd -i $< > build/script_windows.c
-	$(CC) $(CFLAGS) -c build/script_windows.c -o $@
-
-else
-
 build/script_unix.o: src/wrapper/unix.sh
 	@mkdir -p build
 	$(OBJCOPY) -I $(OBJCOPY_INPUT) -O $(OBJCOPY_OUTPUT) -B $(OBJCOPY_ARCH) $< $@
@@ -93,8 +78,6 @@ build/script_unix.o: src/wrapper/unix.sh
 build/script_windows.o: src/wrapper/windows.bat
 	@mkdir -p build
 	$(OBJCOPY) -I $(OBJCOPY_INPUT) -O $(OBJCOPY_OUTPUT) -B $(OBJCOPY_ARCH) $< $@
-
-endif
 
 clean:
 	$(RM) -r build $(TARGET)
