@@ -95,7 +95,6 @@ jobs:
           cp artifacts/pyfloor-windows-arm64/pyfloor.exe release/pyfloor-windows-arm64.exe
           cp artifacts/pyfloor-linux-x86_64/pyfloor release/pyfloor-linux-x86_64
           cp artifacts/pyfloor-linux-arm64/pyfloor release/pyfloor-linux-arm64
-          cp artifacts/pyfloor-macos-arm64/pyfloor release/pyfloor-macos-arm64
 
       - name: Create tag
         env:
