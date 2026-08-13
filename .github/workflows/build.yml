@@ -32,10 +32,6 @@ jobs:
             runner: ubuntu-24.04-arm
             executable: pyfloor
 
-          - platform: macos-arm64
-            runner: macos-latest
-            executable: pyfloor
-
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout

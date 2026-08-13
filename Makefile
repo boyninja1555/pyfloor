@@ -19,10 +19,7 @@ ifeq ($(OS),Windows_NT)
     HOST_OS := windows
 else
     UNAME_S := $(shell uname -s 2>/dev/null)
-
-    ifeq ($(UNAME_S),Darwin)
-        HOST_OS := macos
-    else ifeq ($(UNAME_S),Linux)
+    ifeq ($(UNAME_S),Linux)
         HOST_OS := linux
     else ifeq ($(UNAME_S),FreeBSD)
         HOST_OS := freebsd
@@ -33,11 +30,7 @@ endif
 
 TARGET_TRIPLE := $(shell $(CC) -dumpmachine 2>/dev/null)
 
-ifeq ($(HOST_OS),macos)
-    OBJCOPY_INPUT := binary
-    OBJCOPY_OUTPUT := macho64
-    OBJCOPY_ARCH := arm64
-else ifeq ($(HOST_OS),windows)
+ifeq ($(HOST_OS),windows)
     OBJCOPY_INPUT := binary
     ifneq ($(findstring aarch64,$(TARGET_TRIPLE)),)
         OBJCOPY_OUTPUT := pe-aarch64
