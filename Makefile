@@ -31,16 +31,29 @@ else
     endif
 endif
 
+TARGET_TRIPLE := $(shell $(CC) -dumpmachine 2>/dev/null)
+
 ifeq ($(HOST_OS),windows)
-    OBJCOPY_INPUT  := binary
-    OBJCOPY_OUTPUT := pe-x86-64
-    OBJCOPY_ARCH   := i386:x86-64
+    OBJCOPY_INPUT := binary
+    ifneq ($(findstring aarch64,$(TARGET_TRIPLE)),)
+        OBJCOPY_OUTPUT := pe-aarch64
+        OBJCOPY_ARCH   := aarch64
+    else
+        OBJCOPY_OUTPUT := pe-x86-64
+        OBJCOPY_ARCH   := i386:x86-64
+    endif
 else ifeq ($(HOST_OS),macos)
     EMBED_METHOD := c
 else
-    OBJCOPY_INPUT  := binary
-    OBJCOPY_OUTPUT := elf64-x86-64
-    OBJCOPY_ARCH   := i386:x86-64
+    OBJCOPY_INPUT := binary
+    ifneq ($(findstring aarch64,$(TARGET_TRIPLE)),)
+        OBJCOPY_OUTPUT := elf64-littleaarch64
+        OBJCOPY_ARCH   := aarch64
+    else
+        OBJCOPY_OUTPUT := elf64-x86-64
+        OBJCOPY_ARCH   := i386:x86-64
+    endif
+
 endif
 
 all: $(TARGET)
