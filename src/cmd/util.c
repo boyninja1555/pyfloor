@@ -1,6 +1,5 @@
 #include "util.h"
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
@@ -9,6 +8,7 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+#include <sys/wait.h>
 #include <windows.h>
 #include <direct.h>
 #define MKDIR(directory) _mkdir(directory)
