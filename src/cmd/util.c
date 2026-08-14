@@ -1,26 +1,24 @@
 #include "util.h"
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #ifdef _WIN32
-
+#include <windows.h>
 #include <direct.h>
-
 #define MKDIR(directory) _mkdir(directory)
 #define STAT _stat
 #define STAT_STRUCT struct _stat
-
 #else
-
 #include <sys/types.h>
-
 #define MKDIR(directory) mkdir(directory, 0777)
 #define STAT stat
 #define STAT_STRUCT struct stat
-
 #endif
 
 int writefile(const char *filename, const unsigned char *start, const unsigned char *end, bool executable)
@@ -127,4 +125,62 @@ int ensuredirectory(const char *directory)
     }
 
     return 0;
+}
+
+int forkcommand(const char *directory, const char *command)
+{
+#ifdef _WIN32
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    char *mutable_command = _strdup(command);
+    if (mutable_command == NULL)
+        return 1;
+
+    BOOL ok = CreateProcessA(NULL, mutable_command, NULL, NULL, FALSE, 0, NULL, directory, &si, &pi);
+    free(mutable_command);
+    if (!ok)
+        return 1;
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    DWORD exit_code;
+    BOOL got_exit_code = GetExitCodeProcess(pi.hProcess, &exit_code);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    if (!got_exit_code)
+        return 1;
+
+    return (int)exit_code;
+
+#else
+    pid_t pid = fork();
+    if (pid < 0)
+        return 1;
+
+    if (pid == 0)
+    {
+        if (chdir(directory) != 0)
+            _exit(127);
+
+        execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+        _exit(127);
+    }
+
+    int status;
+
+    if (waitpid(pid, &status, 0) < 0)
+        return 1;
+
+    if (WIFEXITED(status))
+        return WEXITSTATUS(status);
+
+    if (WIFSIGNALED(status))
+        return 128 + WTERMSIG(status);
+
+    return 1;
+#endif
 }

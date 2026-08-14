@@ -22,6 +22,11 @@ usage() {
 init() {
     echo "Finishing PyFloor project initialization..."
 
+    if [[ -f "pyfloor.config" ]]; then
+        echo "Project already exists at that location! Delete its pyfloor.config if you're sure about this."
+        exit 1
+    fi
+
     cat << "EOF" > .gitignore
 # Build files
 build/

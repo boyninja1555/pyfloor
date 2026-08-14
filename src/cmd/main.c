@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "util.h"
@@ -39,10 +40,22 @@ int main(int argc, const char *argv[])
     if (writefile(filename_windows, _binary_src_wrapper_windows_bat_start, _binary_src_wrapper_windows_bat_end, false) != 0)
         return 1;
 
-    printf("Started PyFloor project!\n"
-           "\tDepending on your platform, either `%s init` or `%s init` can be used to finish initializing it.\n"
-           "\tCommit/push these scripts for easy setup and organization!\n",
-           filename_unix, filename_windows);
+#ifdef _WIN32
+    char *filename = filename_windows;
+#else
+    char *filename = filename_unix;
+#endif
+    char command[sizeof('.') + strlen(filename) - strlen(directory) + sizeof(" init")];
+    snprintf(command, sizeof(command), ".%s%s", filename + strlen(directory), " init");
+    if (forkcommand(directory, (const char *)command) == 0)
+    {
+        printf("\nStarted PyFloor project!\n"
+               "\tDepending on your platform, either `%s` or `%s` can be run for help and further actions.\n"
+               "\tCommit/push these scripts for easy setup and organization!\n",
+               filename_unix, filename_windows);
 
-    return 0;
+        return 0;
+    }
+
+    return 1;
 }
