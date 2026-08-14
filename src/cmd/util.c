@@ -1,5 +1,4 @@
 #include "util.h"
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
@@ -8,7 +7,6 @@
 #include <stdio.h>
 
 #ifdef _WIN32
-#include <sys/wait.h>
 #include <windows.h>
 #include <direct.h>
 #define MKDIR(directory) _mkdir(directory)
@@ -16,6 +14,7 @@
 #define STAT_STRUCT struct _stat
 #else
 #include <sys/types.h>
+#include <sys/wait.h>
 #define MKDIR(directory) mkdir(directory, 0777)
 #define STAT stat
 #define STAT_STRUCT struct stat
